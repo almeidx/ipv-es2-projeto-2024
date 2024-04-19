@@ -1,11 +1,15 @@
 import config.*;
 import education.*;
+import courses.*;
 
 public class Main {
-    public static void main(String[] args) throws UnknownConfigurationKeyException, UnknownEducationalEntityTypeException {
+    public static void main(String[] args) throws UnknownConfigurationKeyException, UnknownEducationalEntityTypeException,
+            LessonOperationException, ComponentNotFoundException, PoolExhaustedException, ObjectNotFoundException {
         Main.testSingleton();
         Main.testFactory();
         Main.testBridge();
+        Main.testComposite();
+        Main.testObjectPool();
     }
 
     private static void testSingleton() throws UnknownConfigurationKeyException {
@@ -18,7 +22,7 @@ public class Main {
         try {
             configManager.getConfiguration("app.author");
         } catch (UnknownConfigurationKeyException e) {
-            System.out.println(e.getMessage());
+            System.out.println("Expected: " + e.getMessage());
         }
 
         System.out.println("App Name: " + configManager.getConfiguration("app.name"));
@@ -35,7 +39,7 @@ public class Main {
         try {
             EducationalEntityFactory.makeObject("não existe");
         } catch (UnknownEducationalEntityTypeException e) {
-            System.out.println(e.getMessage());
+            System.out.println("Expected: " + e.getMessage());
         }
 
         quiz.display();
@@ -53,5 +57,60 @@ public class Main {
 
         quizWeb.display();
         quizMobile.display();
+    }
+
+    private static void testComposite() throws LessonOperationException, ComponentNotFoundException {
+        System.out.println("====== Composite ======");
+
+        EducationalComponent lesson1 = new Lesson("Lesson 1");
+        EducationalComponent lesson2 = new Lesson("Lesson 2");
+        EducationalComponent course1 = new Course("Course 1");
+
+        course1.addComponent(lesson1);
+        course1.addComponent(lesson2);
+
+        course1.display();
+
+        course1.removeComponent(lesson2);
+
+        try {
+            course1.removeComponent(lesson2);
+        } catch (ComponentNotFoundException e) {
+            System.out.println("Expected: " + e.getMessage());
+        }
+
+        try {
+            lesson1.addComponent(lesson2);
+        } catch (LessonOperationException e) {
+            System.out.println("Expected: " + e.getMessage());
+        }
+
+        course1.display();
+    }
+
+    private static void testObjectPool() throws PoolExhaustedException, ObjectNotFoundException {
+        System.out.println("====== Object Pool ======");
+
+        DatabaseConnection connection1 = DatabaseConnection.getConnection();
+        DatabaseConnection connection2 = DatabaseConnection.getConnection();
+
+        connection1.releaseConnection(connection1);
+        connection2.releaseConnection(connection2);
+
+        try {
+            connection1.releaseConnection(connection1);
+        } catch (ObjectNotFoundException e) {
+            System.out.println("Expected: " + e.getMessage());
+        }
+
+        for (int i = 0; i < 10; i++) {
+            DatabaseConnection.getConnection();
+        }
+
+        try {
+            DatabaseConnection.getConnection();
+        } catch (PoolExhaustedException e) {
+            System.out.println("Expected: " + e.getMessage());
+        }
     }
 }
