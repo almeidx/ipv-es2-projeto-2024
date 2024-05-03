@@ -3,13 +3,14 @@ import education.*;
 import courses.*;
 
 public class Main {
-    public static void main(String[] args) throws UnknownConfigurationKeyException, UnknownEducationalEntityTypeException,
-            LessonOperationException, ComponentNotFoundException, PoolExhaustedException, ObjectNotFoundException {
+    public static void main(String[] args) throws Exception {
         Main.testSingleton();
         Main.testFactory();
         Main.testBridge();
         Main.testComposite();
         Main.testObjectPool();
+        Main.testMemento();
+        Main.testDecorator();
     }
 
     private static void testSingleton() throws UnknownConfigurationKeyException {
@@ -112,5 +113,44 @@ public class Main {
         } catch (PoolExhaustedException e) {
             System.out.println("Expected: " + e.getMessage());
         }
+    }
+
+    private static void testMemento() throws CourseProgressNotFoundException, NoProgressSetException {
+        System.out.println("====== Memento ======");
+
+        Course myCourse = new Course("My Course");
+
+        try {
+            myCourse.saveProgress();
+        } catch (NoProgressSetException e) {
+            System.out.println("Expected: " + e.getMessage());
+        }
+
+        CourseProgress progress1 = new CourseProgress("Lesson 1", 50F);
+
+        myCourse.setProgress(progress1);
+
+        CourseProgress savedProgress = myCourse.saveProgress();
+
+        System.out.println("Initial Progress: " + myCourse.progress.getCurrentLesson());
+
+        CourseProgress progress2 = new CourseProgress("Lesson 2", 25F);
+        myCourse.setProgress(progress2);
+
+        System.out.println("After set: " + myCourse.progress.getCurrentLesson());
+
+        myCourse.restoreProgress(savedProgress);
+
+        System.out.println("After Restore: " + myCourse.progress.getCurrentLesson());
+        System.out.println("Lesson Progress: " + myCourse.progress.getLessonProgress());
+    }
+
+    private static void testDecorator() {
+        System.out.println("====== Decorator ======");
+
+        EducationalEntity quizWithBadge = new BadgeDecorator(new Quiz());
+        quizWithBadge.display();
+        EducationalEntity quizWithCertificate = new CertificateDecorator(new BadgeDecorator(new Quiz()));
+        quizWithCertificate.display();
     }
 }
