@@ -3,7 +3,7 @@ const { verifyToken, hasPermission } = require("../lib/auth.js");
 function authMiddleware(req, _res, next) {
   const token = req.headers.authorization;
 
-  if ((req.path === "/login" || req.path === "/users") && req.method === "POST") {
+  if ((req.path === "/login" || req.path === "/user") && req.method === "POST") {
     return next();
   }
 
@@ -18,6 +18,11 @@ function authMiddleware(req, _res, next) {
     }
   } catch (err) {
     console.error(err);
+
+    if ("status" in err) {
+      return next(err);
+    }
+
     next({ status: 401, message: "Invalid or expired token" });
   }
 }

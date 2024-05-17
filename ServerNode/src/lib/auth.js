@@ -4,7 +4,7 @@ const rbac = require("./rbac.js");
 const JWT_SECRET = "não digo";
 
 function signPayload({ sub, username, role }) {
-  return jwt.sign({ sub, username, role }, JWT_SECRET, { expiresIn: "1h" });
+  return jwt.sign({ sub, username, role }, JWT_SECRET, { expiresIn: "14d" });
 }
 
 function verifyToken(token) {

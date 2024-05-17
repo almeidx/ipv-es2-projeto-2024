@@ -9,7 +9,7 @@ const loginSchema = z.object({
 });
 
 const createUserSchema = loginSchema.extend({
-  role: z.string(z.enum(["admin", "user"])),
+  role: z.enum(["admin", "user"]),
 });
 
 module.exports = {
@@ -64,6 +64,14 @@ module.exports = {
     const user = users.get(req.user.sub);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
+    }
+
+    if (username && [...users.values()].some((u) => u.username === username)) {
+      return res.status(400).json({ message: "Username already in use" });
+    }
+
+    if (password && await bcrypt.compare(password, user.password)) {
+      return res.status(400).json({ message: "Password is the same" });
     }
 
     if (username) {

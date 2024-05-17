@@ -7,6 +7,8 @@ const createSchema = z.object({
   quantity: z.number().min(1),
 });
 
+const uuidSchema = z.string().uuid();
+
 module.exports = {
   create: (req, res) => {
     const { data: body, success, error } = createSchema.safeParse(req.body);
@@ -28,7 +30,12 @@ module.exports = {
   },
 
   get: (req, res) => {
-    const { id } = req.params;
+    const { data: id, success, error } = uuidSchema.safeParse(req.params.id);
+    if (!success) {
+      return res
+        .status(400)
+        .json({ message: "Invalid id", errors: error.errors });
+    }
 
     const order = orders.find((order) => order.id === id);
     if (!order) {
