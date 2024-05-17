@@ -1,0 +1,231 @@
+openapi: 3.0.0
+info:
+  description: "Projeto de ES2"
+  version: "1.0.0"
+  title: "Servidor Node"
+servers:
+  - url: "http://localhost:3000"
+tags:
+  - name: "Users"
+  - name: "Orders"
+paths:
+  /api/login:
+    post:
+      tags:
+        - "Users"
+      summary: "Login"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                username:
+                  minLength: 3
+                  maxLength: 32
+                  type: "string"
+                password:
+                  minLength: 6
+                  maxLength: 128
+                  type: "string"
+              required:
+                - "username"
+                - "password"
+        required: true
+      responses:
+        200:
+          description: "Login successful"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  token:
+                    type: "string"
+                required:
+                  - "token"
+  /api/user:
+    get:
+      tags:
+        - "Users"
+      summary: "Get User"
+      responses:
+        200:
+          description: "User data"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  id:
+                    type: "string"
+                    format: "uuid"
+                  username:
+                    minLength: 3
+                    maxLength: 32
+                    type: "string"
+                  role:
+                    type: "string"
+                    enum:
+                      - "admin"
+                      - "user"
+                required:
+                  - "id"
+                  - "username"
+                  - "role"
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - "Users"
+      summary: "Create User"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                username:
+                  minLength: 3
+                  maxLength: 32
+                  type: "string"
+                password:
+                  minLength: 6
+                  maxLength: 128
+                  type: "string"
+                role:
+                  type: "string"
+                  enum:
+                    - "admin"
+                    - "user"
+              required:
+                - "username"
+                - "password"
+                - "role"
+        required: true
+      responses:
+        201:
+          description: "User created successfully"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  id:
+                    type: "string"
+                    format: "uuid"
+                required:
+                  - "id"
+      security:
+        - bearerAuth: []
+    put:
+      tags:
+        - "Users"
+      summary: "Update User"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                username:
+                  minLength: 3
+                  maxLength: 32
+                  type: "string"
+                password:
+                  minLength: 6
+                  maxLength: 128
+                  type: "string"
+        required: true
+      responses:
+        204:
+          description: "User updated successfully"
+      security:
+        - bearerAuth: []
+  /api/order:
+    post:
+      tags:
+        - "Orders"
+      summary: "Create Order"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                name:
+                  minLength: 3
+                  maxLength: 32
+                  type: "string"
+                price:
+                  type: "number"
+                  minimum: 0
+                quantity:
+                  type: "integer"
+                  minimum: 1
+              required:
+                - "name"
+                - "price"
+                - "quantity"
+        required: true
+      responses:
+        201:
+          description: "Order created successfully"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  id:
+                    type: "string"
+                    format: "uuid"
+                required:
+                  - "id"
+      security:
+        - bearerAuth: []
+  /api/order/{orderId}:
+    get:
+      tags:
+        - "Orders"
+      summary: "Get Order"
+      parameters:
+        - name: "orderId"
+          in: "path"
+          schema:
+            type: "string"
+            format: "uuid"
+          required: true
+      responses:
+        200:
+          description: "Order data"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  id:
+                    type: "string"
+                    format: "uuid"
+                  name:
+                    minLength: 3
+                    maxLength: 32
+                    type: "string"
+                  price:
+                    type: "number"
+                    minimum: 0
+                  quantity:
+                    type: "integer"
+                    minimum: 1
+                required:
+                  - "id"
+                  - "name"
+                  - "price"
+                  - "quantity"
+      security:
+        - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

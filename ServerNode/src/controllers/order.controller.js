@@ -24,7 +24,7 @@ module.exports = {
       ...body,
     });
 
-    return res.json({ id });
+    return res.status(201).json({ id });
   },
 
   get: (req, res) => {
@@ -39,6 +39,11 @@ module.exports = {
       return res.status(403).json({ message: "Forbidden" });
     }
 
-    return res.json(order);
+    return res.json({
+      id: order.id,
+      name: order.name,
+      price: order.price,
+      quantity: order.quantity,
+    });
   },
 };

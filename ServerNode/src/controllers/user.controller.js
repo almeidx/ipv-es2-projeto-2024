@@ -40,13 +40,19 @@ module.exports = {
       password: hashedPassword,
     });
 
-    const token = signPayload(userData);
-
-    return res.json({ token });
+    return res.status(201).json({
+      id: userData.sub,
+      username: userData.username,
+      role: userData.role,
+    });
   },
 
   update: async (req, res) => {
-    const { data: body, success, error } = loginSchema.partial().safeParse(req.body);
+    const {
+      data: body,
+      success,
+      error,
+    } = loginSchema.partial().safeParse(req.body);
     if (!success) {
       return res
         .status(400)
@@ -70,9 +76,7 @@ module.exports = {
 
     req.user = null;
 
-    const newToken = signPayload(user);
-
-    return res.json({ message: "User updated", newToken });
+    return res.status(204).end();
   },
 
   get: (req, res) => {
