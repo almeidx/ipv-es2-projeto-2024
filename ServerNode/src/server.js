@@ -22,5 +22,5 @@ app.use((err, _req, res, _next) => {
   logger.error(err);
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+const PORT = Number(process.env.PORT) || 3000;
+app.listen(PORT, () => logger.info(`Server started on port ${PORT}`));

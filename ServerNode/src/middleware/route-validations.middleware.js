@@ -8,6 +8,11 @@ const allRoutes = [
 	{ method: "GET", path: /^\/api\/order\/[^/]+$/i },
 ];
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} _res
+ * @param {import('express').NextFunction} next
+ */
 function routeValidationsMiddleware(req, _res, next) {
 	if (!allRoutes.some((route) => route.path.test(req.path))) {
 		return next({ status: 404, message: "Not found" });

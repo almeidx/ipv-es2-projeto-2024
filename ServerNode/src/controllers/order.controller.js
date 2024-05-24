@@ -4,7 +4,7 @@ const { orders } = require("../data/orders.js");
 const createSchema = z.object({
   name: z.string().min(3).max(32),
   price: z.number().min(0),
-  quantity: z.number().min(1),
+  quantity: z.number().min(1).max(100),
 });
 
 const uuidSchema = z.string().uuid();
@@ -46,11 +46,8 @@ module.exports = {
       return res.status(403).json({ message: "Forbidden" });
     }
 
-    return res.json({
-      id: order.id,
-      name: order.name,
-      price: order.price,
-      quantity: order.quantity,
-    });
+    const { userId, ...publicData } = order;
+
+    return res.json(publicData);
   },
 };

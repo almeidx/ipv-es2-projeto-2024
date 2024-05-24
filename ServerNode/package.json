@@ -1,7 +1,8 @@
 {
   "scripts": {
     "start": "node src/server.js",
-    "watch": "node --watch src/server.js"
+    "watch": "node --watch src/server.js",
+    "test": "node --test-reporter=spec src/tests.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
