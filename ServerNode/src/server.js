@@ -2,16 +2,14 @@ const express = require("express");
 const routes = require("./routes.js");
 const authMiddleware = require("./middleware/auth.middleware.js");
 const logger = require("./lib/logger.js");
+const loggerMiddleware = require("./middleware/logger.middleware.js");
+const routeValidationsMiddleware = require("./middleware/route-validations.middleware.js");
 
 const app = express();
 
 app.use(express.json());
-
-app.use((req, _res, next) => {
-  logger.info(`${req.method} ${req.path}`);
-  next();
-});
-
+app.use(loggerMiddleware);
+app.use(routeValidationsMiddleware);
 app.use("/api", authMiddleware, routes);
 
 app.use((err, _req, res, _next) => {

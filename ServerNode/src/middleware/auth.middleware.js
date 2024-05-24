@@ -1,11 +1,16 @@
 const { verifyToken, hasPermission } = require("../lib/auth.js");
 
-function authMiddleware(req, _res, next) {
-  const token = req.headers.authorization;
+const unauthenticatedRoutes = [
+  { method: "POST", path: /^\/login$/ },
+  { method: "POST", path: /^\/user$/ },
+];
 
-  if ((req.path === "/login" || req.path === "/user") && req.method === "POST") {
+function authMiddleware(req, _res, next) {
+  if (unauthenticatedRoutes.some((route) => route.method === req.method && route.path.test(req.path))) {
     return next();
   }
+
+  const token = req.headers.authorization;
 
   try {
     const decoded = verifyToken(token);
