@@ -1,53 +1,53 @@
 const { z } = require("zod");
-const { orders } = require("../data/orders.js");
+const OrderModel = require("../model/order.model.js");
 
 const createSchema = z.object({
-  name: z.string().min(3).max(32),
-  price: z.number().min(0),
-  quantity: z.number().min(1).max(100),
+	name: z.string().min(3).max(32),
+	price: z.number().min(0),
+	quantity: z.number().min(1).max(100),
 });
 
 const uuidSchema = z.string().uuid();
 
 module.exports = {
-  create: (req, res) => {
-    const { data: body, success, error } = createSchema.safeParse(req.body);
-    if (!success) {
-      return res
-        .status(400)
-        .json({ message: "Invalid body", errors: error.errors });
-    }
+	async create(req, res) {
+		const { data: body, success, error } = createSchema.safeParse(req.body);
+		if (!success) {
+			return res
+				.status(400)
+				.json({ message: "Invalid body", errors: error.errors });
+		}
 
-    const id = crypto.randomUUID();
+		const id = crypto.randomUUID();
 
-    orders.push({
-      id,
-      userId: req.user.sub,
-      ...body,
-    });
+		await OrderModel.create({
+			id,
+			userId: req.user.sub,
+			...body,
+		});
 
-    return res.status(201).json({ id });
-  },
+		return res.status(201).json({ id });
+	},
 
-  get: (req, res) => {
-    const { data: id, success, error } = uuidSchema.safeParse(req.params.id);
-    if (!success) {
-      return res
-        .status(400)
-        .json({ message: "Invalid id", errors: error.errors });
-    }
+	async get(req, res) {
+		const { data: id, success, error } = uuidSchema.safeParse(req.params.id);
+		if (!success) {
+			return res
+				.status(400)
+				.json({ message: "Invalid id", errors: error.errors });
+		}
 
-    const order = orders.find((order) => order.id === id);
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
-    }
+		const order = await OrderModel.findById(id);
+		if (!order) {
+			return res.status(404).json({ message: "Order not found" });
+		}
 
-    if (req.user.role !== "admin" && order.userId !== req.user.sub) {
-      return res.status(403).json({ message: "Forbidden" });
-    }
+		if (req.user.role !== "admin" && order.userId !== req.user.sub) {
+			return res.status(403).json({ message: "Forbidden" });
+		}
 
-    const { userId, ...publicData } = order;
+		const { userId, ...publicData } = order;
 
-    return res.json(publicData);
-  },
+		return res.json(publicData);
+	},
 };
